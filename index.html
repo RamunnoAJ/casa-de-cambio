@@ -47,7 +47,7 @@
       <div class="row my-4 justify-content-center gap-2">
         <div class="col-12 col-sm-6 col-md">
           <label class="fw-semibold" for="quantity">Cantidad</label>
-          <input name="quantity" type="number" id="quantity"
+          <input name="quantity" type="number" id="quantity" min="1"
             class="w-100 h-50 py-1 px-2 rounded-2 border-0 bg-primary bg-opacity-10">
         </div>
         <div class="col-12 col-sm-6 col-md">
@@ -85,6 +85,7 @@
     <h2 id="change-list" class="text-center">Tabla de Cambios</h2>
     <h4 class="text-center fw-normal">Moneda seleccionada: <span class="fw-semibold" id="selected-currency"></span>
     </h4>
+    <span id="change-list-date"></span>
 
     <div class="overflow-auto max-height">
       <table class="table">

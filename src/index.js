@@ -8,6 +8,7 @@ const $selectedChange = document.querySelector('#selected-change')
 const $selectedCurrency = document.querySelector('#selected-currency')
 const $tableBody = document.querySelector('#table-body')
 const $buttonChange = document.querySelector('#button-change')
+const $changeListDate = document.querySelector('#change-list-date')
 
 $form.addEventListener('submit', handleSubmit)
 $buttonChange.addEventListener('click', handleClick)
@@ -28,6 +29,8 @@ function handleSubmit(e) {
   const toCurrency = $form['to-currency'].value
   const fromDate = $form.date.value
 
+  if (validateQuantity(quantity) === 'error') return
+
   getConvertRate(fromCurrency, toCurrency, quantity, fromDate)
   renderTableCurrencies(fromCurrency, fromDate)
 }
@@ -46,6 +49,9 @@ function getConvertRate(fromCurrency, toCurrency, quantity, fromDate) {
 }
 
 function renderCurrencies() {
+  $form['from-currency'].innerHTML = ''
+  $form['to-currency'].innerHTML = ''
+
   getDataFromURL('./json/currencies.json').then(data => {
     data.forEach(currency => {
       $form[
@@ -75,6 +81,8 @@ function renderTableCurrencies(fromCurrency, fromDate) {
       </tr>`
       })
     })
+
+    $changeListDate.textContent = `Tipo de cambio de la fecha: ${fromDate}`
   } else {
     getDataFromURL(`${API_URL}latest?base=${fromCurrency}`).then(data => {
       const rates = Object.entries(data.rates)
@@ -88,6 +96,8 @@ function renderTableCurrencies(fromCurrency, fromDate) {
       </tr>`
       })
     })
+
+    $changeListDate.textContent = `Tipo de cambio de la fecha: ${getTodaysDate()}`
   }
 }
 
@@ -107,4 +117,14 @@ function getTodaysDate() {
   }
 
   return todaysDate
+}
+
+function validateQuantity(quantity) {
+  if (quantity <= 0 || '') {
+    $form.quantity.classList.add('bg-danger')
+
+    return 'error'
+  }
+
+  $form.quantity.classList.remove('bg-danger')
 }
