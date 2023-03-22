@@ -7,8 +7,19 @@ const $selectedDate = document.querySelector('#selected-date')
 const $selectedChange = document.querySelector('#selected-change')
 const $selectedCurrency = document.querySelector('#selected-currency')
 const $tableBody = document.querySelector('#table-body')
+const $buttonChange = document.querySelector('#button-change')
 
+$form.addEventListener('submit', handleSubmit)
+$buttonChange.addEventListener('click', handleClick)
 renderCurrencies()
+
+function handleClick() {
+  const fromCurrency = $form['from-currency'].value
+  const toCurrency = $form['to-currency'].value
+
+  $form['from-currency'].value = toCurrency
+  $form['to-currency'].value = fromCurrency
+}
 
 function handleSubmit(e) {
   e.preventDefault()
@@ -25,7 +36,7 @@ function getConvertRate(fromCurrency, toCurrency, quantity, fromDate) {
   getDataFromURL(
     `${API_URL}convert?from=${fromCurrency}&to=${toCurrency}&amount=${quantity}&date=${fromDate}`
   ).then(data => {
-    $selectedDate.textContent = fromDate || new Date().toLocaleDateString()
+    $selectedDate.textContent = fromDate || getTodaysDate()
     $selectedChange.textContent = `${fromCurrency} ${quantity} = ${toCurrency} ${new Intl.NumberFormat(
       'de-DE'
     ).format(data.result)}`
@@ -80,4 +91,20 @@ function renderTableCurrencies(fromCurrency, fromDate) {
   }
 }
 
-$form.addEventListener('submit', handleSubmit)
+function getTodaysDate() {
+  const date = new Date()
+
+  const day = date.getDate()
+  const month = date.getMonth() + 1
+  const year = date.getFullYear()
+
+  let todaysDate
+
+  if (month < 10) {
+    todaysDate = `${year}-0${month}-${day}`
+  } else {
+    todaysDate = `${year}-${month}-${day}`
+  }
+
+  return todaysDate
+}
