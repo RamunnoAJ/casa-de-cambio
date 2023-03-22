@@ -36,8 +36,14 @@ function handleSubmit(e) {
 }
 
 function getConvertRate(fromCurrency, toCurrency, quantity, fromDate) {
+  let isDateProvided = ''
+
+  if (fromDate) {
+    isDateProvided = `&date=${fromDate}`
+  }
+
   getDataFromURL(
-    `${API_URL}convert?from=${fromCurrency}&to=${toCurrency}&amount=${quantity}&date=${fromDate}`
+    `${API_URL}convert?from=${fromCurrency}&to=${toCurrency}&amount=${quantity}${isDateProvided}`
   ).then(data => {
     $selectedDate.textContent = fromDate || getTodaysDate()
     $selectedChange.textContent = `${fromCurrency} ${quantity} = ${toCurrency} ${new Intl.NumberFormat(
