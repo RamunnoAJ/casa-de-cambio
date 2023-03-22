@@ -1,3 +1,7 @@
 #change-list {
   scroll-margin-block: 5rem;
 }
+
+.max-height {
+  height: 28rem;
+}
