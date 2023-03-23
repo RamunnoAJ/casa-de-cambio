@@ -1,4 +1,4 @@
-import { getDataFromURL } from './getDataFromURL.js'
+import { fetchURL } from './fetchURL.js'
 
 const API_URL = 'https://api.exchangerate.host/'
 
@@ -42,13 +42,13 @@ function getConvertRate(fromCurrency, toCurrency, quantity, fromDate) {
     isDateProvided = `&date=${fromDate}`
   }
 
-  getDataFromURL(
+  fetchURL(
     `${API_URL}convert?from=${fromCurrency}&to=${toCurrency}&amount=${quantity}${isDateProvided}`
-  ).then(data => {
-    $selectedDate.textContent = fromDate || getTodaysDate()
+  ).then(response => {
+    $selectedDate.textContent = fromDate || getCurrentDate()
     $selectedChange.textContent = `${fromCurrency} ${quantity} = ${toCurrency} ${new Intl.NumberFormat(
       'de-DE'
-    ).format(data.result)}`
+    ).format(response.result)}`
 
     $selectedCurrency.textContent = fromCurrency
   })
@@ -58,8 +58,8 @@ function renderCurrencies() {
   $form['from-currency'].innerHTML = ''
   $form['to-currency'].innerHTML = ''
 
-  getDataFromURL('./json/currencies.json').then(data => {
-    data.forEach(currency => {
+  fetchURL('./json/currencies.json').then(response => {
+    response.forEach(currency => {
       $form[
         'from-currency'
       ].innerHTML += `<option value='${currency}'>${currency}</option>`
@@ -75,54 +75,31 @@ function renderTableCurrencies(fromCurrency, fromDate) {
   $tableBody.innerHTML = ''
 
   if (fromDate) {
-    getDataFromURL(`${API_URL}${fromDate}?base=${fromCurrency}`).then(data => {
-      const rates = Object.entries(data.rates)
-      rates.forEach(currency => {
-        const currencyName = currency[0]
-        const currencyExchange = currency[1]
-
-        $tableBody.innerHTML += `<tr>
-        <td>${currencyName}</td>
-        <td>${new Intl.NumberFormat('de-DE').format(currencyExchange)}</td>
-      </tr>`
-      })
-    })
-
+    renderTableCurrenciesWithDate(fromCurrency, fromDate)
     $changeListDate.textContent = `Tipo de cambio de la fecha: ${fromDate}`
   } else {
-    getDataFromURL(`${API_URL}latest?base=${fromCurrency}`).then(data => {
-      const rates = Object.entries(data.rates)
-      rates.forEach(currency => {
-        const currencyName = currency[0]
-        const currencyExchange = currency[1]
-
-        $tableBody.innerHTML += `<tr>
-        <td>${currencyName}</td>
-        <td>${new Intl.NumberFormat('de-DE').format(currencyExchange)}</td>
-      </tr>`
-      })
-    })
-
-    $changeListDate.textContent = `Tipo de cambio de la fecha: ${getTodaysDate()}`
+    renderTableCurrenciesWithoutDate(fromCurrency)
+    $changeListDate.textContent = `Tipo de cambio de la fecha: ${getCurrentDate()}`
   }
 }
 
-function getTodaysDate() {
+function getCurrentDate() {
+  const MONTH_DIGIT = 10
   const date = new Date()
 
   const day = date.getDate()
   const month = date.getMonth() + 1
   const year = date.getFullYear()
 
-  let todaysDate
+  let currentDate
 
-  if (month < 10) {
-    todaysDate = `${year}-0${month}-${day}`
+  if (month < MONTH_DIGIT) {
+    currentDate = `${year}-0${month}-${day}`
   } else {
-    todaysDate = `${year}-${month}-${day}`
+    currentDate = `${year}-${month}-${day}`
   }
 
-  return todaysDate
+  return currentDate
 }
 
 function validateQuantity(quantity) {
@@ -133,4 +110,34 @@ function validateQuantity(quantity) {
   }
 
   $form.quantity.classList.remove('bg-danger')
+}
+
+function renderTableCurrenciesWithDate(fromCurrency, fromDate) {
+  fetchURL(`${API_URL}${fromDate}?base=${fromCurrency}`).then(response => {
+    const rates = Object.entries(response.rates)
+    rates.forEach(currency => {
+      const currencyName = currency[0]
+      const currencyExchange = currency[1]
+
+      $tableBody.innerHTML += `<tr>
+      <td>${currencyName}</td>
+      <td>${new Intl.NumberFormat('de-DE').format(currencyExchange)}</td>
+    </tr>`
+    })
+  })
+}
+
+function renderTableCurrenciesWithoutDate(fromCurrency) {
+  fetchURL(`${API_URL}latest?base=${fromCurrency}`).then(response => {
+    const rates = Object.entries(response.rates)
+    rates.forEach(currency => {
+      const currencyName = currency[0]
+      const currencyExchange = currency[1]
+
+      $tableBody.innerHTML += `<tr>
+      <td>${currencyName}</td>
+      <td>${new Intl.NumberFormat('de-DE').format(currencyExchange)}</td>
+    </tr>`
+    })
+  })
 }
