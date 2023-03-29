@@ -51,37 +51,49 @@ context('Exchange rate app', () => {
       })
   })
 
-  it('should render the correct table data after calling the API with a provided date', () => {
-    cy.get('tbody tr').should('have.length.of.at.least', 5)
-    cy.get('tbody > *:first-child > *:first-child').should('have.text', 'USD')
-    cy.get('tbody > *:first-child > *:last-child').should('have.text', '0,121')
-  })
-
-  it('should get the latest data when date is not provided', () => {
-    cy.visit(URL)
-    cy.get('#quantity').type('1')
-    cy.get('#from-currency').select(BASE)
-    cy.get('#to-currency').select(CONVERT_TO)
-
-    cy.intercept(`${API_URL}latest?base=${BASE}`).as('latest')
-    cy.intercept(`${API_URL}convert?from=${BASE}&to=${CONVERT_TO}&amount=1`).as(
-      'convert'
-    )
-    cy.get('#submit-form').click()
-
-    cy.wait(['@latest', '@convert']).then(interception => {
-      cy.get('#change-list-date').should('include.text', CURRENT_YEAR)
-      cy.get('#selected-currency').should('have.text', BASE)
-      cy.get('#selected-change').should(
-        'include.text',
-        `${BASE} 1 = ${CONVERT_TO} 0,005`
-      )
+  describe('Getting data to render in the table', () => {
+    beforeEach(() => {
+      cy.get('tbody tr').as('table')
+      cy.get('tbody > *:first-child > *:first-child').as('tableFirstChild')
+      cy.get('tbody > *:first-child > *:last-child').as('tableLastChild')
     })
-  })
 
-  it('should render the correct table data after calling the API no provided date', () => {
-    cy.get('tbody tr').should('have.length.of.at.least', 5)
-    cy.get('tbody > *:first-child > *:first-child').should('have.text', 'AED')
-    cy.get('tbody > *:first-child > *:last-child').should('have.text', '0,018')
+    it('should render the correct table data after calling the API with a provided date', () => {
+      cy.get('tbody tr').as('table')
+      cy.get('tbody > *:first-child > *:first-child').as('tableFirstChild')
+      cy.get('tbody > *:first-child > *:last-child').as('tableLastChild')
+
+      cy.get('@table').should('have.length.of.at.least', 5)
+      cy.get('@tableFirstChild').should('have.text', 'USD')
+      cy.get('@tableLastChild').should('have.text', '0,121')
+    })
+
+    it('should get the latest data when date is not provided', () => {
+      cy.visit(URL)
+      cy.get('#quantity').type('1')
+      cy.get('#from-currency').select(BASE)
+      cy.get('#to-currency').select(CONVERT_TO)
+
+      cy.intercept(`${API_URL}latest?base=${BASE}`).as('latest')
+      cy.intercept(
+        `${API_URL}convert?from=${BASE}&to=${CONVERT_TO}&amount=1`
+      ).as('convert')
+      cy.get('#submit-form').click()
+
+      cy.wait(['@latest', '@convert']).then(interception => {
+        cy.get('#change-list-date').should('include.text', CURRENT_YEAR)
+        cy.get('#selected-currency').should('have.text', BASE)
+        cy.get('#selected-change').should(
+          'include.text',
+          `${BASE} 1 = ${CONVERT_TO} 0,005`
+        )
+      })
+    })
+
+    it('should render the correct table data after calling the API with no provided date', () => {
+      cy.get('@table').should('have.length.of.at.least', 5)
+      cy.get('@tableFirstChild').should('have.text', 'AED')
+      cy.get('@tableLastChild').should('have.text', '0,018')
+    })
   })
 })
