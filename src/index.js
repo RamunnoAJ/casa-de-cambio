@@ -35,8 +35,13 @@ function handleSubmit(e) {
   renderTableCurrencies(fromCurrency, fromDate)
 }
 
-async function getConvertRate(fromCurrency, toCurrency, quantity) {
-  const data = await api.getConvertRate(fromCurrency, toCurrency, quantity)
+async function getConvertRate(fromCurrency, toCurrency, quantity, fromDate) {
+  const data = await api.getConvertRate(
+    fromCurrency,
+    toCurrency,
+    quantity,
+    fromDate
+  )
   const rate = new Rate(
     data.date,
     data.query.from,
@@ -44,6 +49,8 @@ async function getConvertRate(fromCurrency, toCurrency, quantity) {
     data.query.amount,
     data.result
   )
+
+  console.log(rate.date)
 
   $selectedDate.textContent = rate.date
   $selectedChange.textContent = rate.getRate()
@@ -88,5 +95,7 @@ async function renderTableCurrencies(fromCurrency, fromDate) {
     </tr>`
   })
 
-  $changeListDate.textContent = `Tipo de cambio de la fecha: ${fromDate}`
+  $changeListDate.textContent = `Tipo de cambio de la fecha: ${
+    fromDate || new Date().toISOString().split('T')[0]
+  }`
 }
