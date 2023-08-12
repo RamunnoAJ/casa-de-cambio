@@ -34,9 +34,9 @@ describe('Exchange rate app', () => {
     cy.get('#to-currency').select(CONVERT_TO)
     cy.get('#date').type(VALID_DATE)
 
+    cy.intercept(`${API_URL}${VALID_DATE}?base=${BASE}`).as('response')
     cy.get('#submit-form').click()
 
-    cy.intercept(`${API_URL}${VALID_DATE}?base=${BASE}`).as('response')
     cy.wait('@response')
       .its('response.statusCode')
       .should('eq', 200)
