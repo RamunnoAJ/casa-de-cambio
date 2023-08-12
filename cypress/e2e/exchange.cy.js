@@ -4,6 +4,12 @@ const VALID_DATE = '2014-08-15'
 const BASE = 'ARS'
 const CONVERT_TO = 'USD'
 const CURRENT_YEAR = 2023
+const CONVERT_RATE_ARS_TO_USD = '0,003'
+const CONVERT_RATE_ARS_TO_AED = '0,013'
+
+function getDate() {
+  return new Date().toISOString().split('T')[0]
+}
 
 describe('Exchange rate app', () => {
   before(() => {
@@ -71,7 +77,7 @@ describe('Test that the table renders when API call happens', () => {
     cy.get('#from-currency').select(BASE)
     cy.get('#to-currency').select(CONVERT_TO)
 
-    cy.intercept(`${API_URL}latest?base=${BASE}`).as('latest')
+    cy.intercept(`${API_URL}${getDate()}?base=${BASE}`).as('latest')
     cy.intercept(`${API_URL}convert?from=${BASE}&to=${CONVERT_TO}&amount=1`).as(
       'convert'
     )
@@ -82,7 +88,7 @@ describe('Test that the table renders when API call happens', () => {
       cy.get('#selected-currency').should('have.text', BASE)
       cy.get('#selected-change').should(
         'include.text',
-        `${BASE} 1 = ${CONVERT_TO} 0,005`
+        `${BASE} 1 = ${CONVERT_TO} ${CONVERT_RATE_ARS_TO_USD}`
       )
     })
   })
@@ -90,6 +96,6 @@ describe('Test that the table renders when API call happens', () => {
   it('should render the correct table data after calling the API with no provided date', () => {
     cy.get('@table').should('have.length.of.at.least', 5)
     cy.get('@tableFirstChild').should('have.text', 'AED')
-    cy.get('@tableLastChild').should('have.text', '0,018')
+    cy.get('@tableLastChild').should('have.text', CONVERT_RATE_ARS_TO_AED)
   })
 })
